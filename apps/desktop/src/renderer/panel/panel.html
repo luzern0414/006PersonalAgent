@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'none'">
+<title>小管家</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<header class="topbar">
+  <nav class="tabs" id="tabs"></nav>
+  <div id="status" class="status"></div>
+</header>
+<main id="view"></main>
+<div id="drop-overlay" class="drop-overlay hidden"><div>松手，收进知识库</div></div>
+<div id="toasts"></div>
+<script src="../runtime-errors.js"></script>
+<script type="module" src="panel.js"></script>
+</body>
+</html>

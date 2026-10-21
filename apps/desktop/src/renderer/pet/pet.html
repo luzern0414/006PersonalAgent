@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+<title>小管家</title>
+<link rel="stylesheet" href="pet.css">
+</head>
+<body>
+<div id="root" class="s-idle">
+  <div id="bubble" class="bubble hidden" role="status">
+    <button class="bubble-close" title="关闭">×</button>
+    <div class="bubble-title"></div>
+    <div class="bubble-text"></div>
+    <div class="bubble-actions"></div>
+  </div>
+
+  <div id="chip" class="chip hidden"></div>
+
+  <div id="stage">
+    <svg id="pet" viewBox="0 0 140 140" aria-label="小管家">
+      <ellipse class="shadow" cx="70" cy="133" rx="40" ry="5.5"/>
+
+      <!-- 雨伞（下雨天） -->
+      <g class="acc umbrella">
+        <path d="M118 30 q-2 50 -2 70" class="stick"/>
+        <path d="M84 34 q34 -36 68 0 q-8 -6 -17 0 q-8 -6 -17 0 q-8 -6 -17 0 q-9 -6 -17 0z" class="canopy"/>
+      </g>
+
+      <g id="body-g">
+        <path class="tail" d="M112 116 q24 -4 20 -30 q-1 -6 -6 -4 q2 18 -16 24z"/>
+        <path class="ear" d="M28 64 L34 18 Q36 14 40 17 L66 40 Z"/>
+        <path class="ear" d="M112 64 L106 18 Q104 14 100 17 L74 40 Z"/>
+        <path class="ear-in" d="M36 52 L39 27 L55 41 Z"/>
+        <path class="ear-in" d="M104 52 L101 27 L85 41 Z"/>
+        <ellipse class="body" cx="70" cy="88" rx="52" ry="44"/>
+        <ellipse class="belly" cx="70" cy="106" rx="28" ry="18"/>
+
+        <g id="face">
+          <g id="eyes">
+            <g class="eye-open">
+              <ellipse class="pupil" cx="52" cy="82" rx="6.2" ry="7.6"/>
+              <ellipse class="pupil" cx="88" cy="82" rx="6.2" ry="7.6"/>
+              <circle class="hl" cx="54.2" cy="79" r="2.2"/>
+              <circle class="hl" cx="90.2" cy="79" r="2.2"/>
+            </g>
+            <g class="eye-closed">
+              <path d="M45 83 q7 6 14 0"/>
+              <path d="M81 83 q7 6 14 0"/>
+            </g>
+            <g class="eye-happy">
+              <path d="M45 84 q7 -9 14 0"/>
+              <path d="M81 84 q7 -9 14 0"/>
+            </g>
+          </g>
+          <ellipse class="cheek" cx="38" cy="95" rx="7" ry="4.4"/>
+          <ellipse class="cheek" cx="102" cy="95" rx="7" ry="4.4"/>
+          <path class="mouth" d="M63 95 q3.5 3.6 7 0 q3.5 3.6 7 0"/>
+          <ellipse class="mouth-open" cx="70" cy="98" rx="5" ry="4.6"/>
+        </g>
+
+        <ellipse class="arm arm-l" cx="36" cy="112" rx="9.5" ry="7.5"/>
+        <ellipse class="arm arm-r" cx="104" cy="112" rx="9.5" ry="7.5"/>
+
+        <!-- 耳机（专注模式） -->
+        <g class="acc headphones">
+          <path d="M26 74 q4 -58 88 0" class="band"/>
+          <rect x="17" y="70" width="14" height="22" rx="6" class="cup"/>
+          <rect x="109" y="70" width="14" height="22" rx="6" class="cup"/>
+        </g>
+        <!-- 水杯（喝水） -->
+        <g class="acc cup-water">
+          <path d="M92 96 h20 l-3 22 h-14z" class="glass"/>
+          <path d="M94 104 h16 l-1.8 13 h-12.4z" class="water"/>
+        </g>
+      </g>
+
+      <g class="acc zzz"><text x="104" y="40">Z</text><text x="116" y="26" class="small">z</text></g>
+      <g class="acc exclaim"><rect x="66" y="0" width="8" height="20" rx="4"/><circle cx="70" cy="28" r="4.4"/></g>
+      <g class="acc dots"><circle cx="100" cy="30" r="4"/><circle cx="112" cy="22" r="5"/><circle cx="126" cy="12" r="6"/></g>
+      <g class="acc heart"><path d="M70 22 c-6 -10 -20 -4 -14 6 l14 12 l14 -12 c6 -10 -8 -16 -14 -6z"/></g>
+      <g class="acc sparkle"><path d="M22 30 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 l8 -3z"/><path d="M116 50 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2z"/></g>
+    </svg>
+    <div id="hit" title=""></div>
+  </div>
+</div>
+<script src="../runtime-errors.js"></script>
+<script src="pet.js"></script>
+</body>
+</html>

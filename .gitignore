@@ -1,0 +1,14 @@
+# 运行时数据（任务、对话、知识库、日志）
+data/**
+!data/**/
+!data/**/.gitkeep
+!data/README.md
+
+# 密钥与个人设置（settings.json 可能含加密密钥与个人路径）
+config/apikey.txt
+config/settings.json
+
+# 依赖与构建产物
+node_modules/
+dist/
+out/

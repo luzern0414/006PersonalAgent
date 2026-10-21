@@ -1,0 +1,176 @@
+/* 宠物窗口：透明背景，只有角色、气泡、信息条可见
+   性能：待机动画使用 steps() 降低重绘频率；窗口隐藏时浏览器自动节流 */
+:root {
+  --ink: #5b4636;
+  --fur: #fff3e0;
+  --belly: #fffaf2;
+  --pink: #ffb3a7;
+  --accent: #ff8a65;
+  --bubble-bg: rgba(255, 255, 255, 0.97);
+  --bubble-fg: #3d3027;
+  --bubble-muted: #8a7a6c;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bubble-bg: rgba(43, 38, 34, 0.97);
+    --bubble-fg: #f3ebe3;
+    --bubble-muted: #b5a698;
+  }
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font: 13px/1.5 "Microsoft YaHei UI", "PingFang SC", system-ui, sans-serif;
+  user-select: none;
+}
+#root { position: absolute; inset: 0; transform-origin: 50% 100%; }
+
+/* ───── 角色舞台 ───── */
+#stage { position: absolute; left: 50%; bottom: 2px; width: 140px; height: 140px; margin-left: -70px; }
+#pet { width: 140px; height: 140px; overflow: visible; display: block; }
+#hit { position: absolute; left: 14px; top: 12px; width: 112px; height: 126px; border-radius: 50% 50% 46% 46%; cursor: grab; }
+.s-drag #hit { cursor: grabbing; }
+
+.shadow { fill: rgba(0, 0, 0, 0.13); }
+.body, .ear { fill: var(--fur); stroke: var(--ink); stroke-width: 3.2; stroke-linejoin: round; }
+.tail { fill: var(--fur); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+.belly { fill: var(--belly); }
+.ear-in { fill: var(--pink); opacity: 0.7; }
+.pupil { fill: var(--ink); }
+.hl { fill: #fff; }
+.eye-closed path, .eye-happy path, .mouth { fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; }
+.cheek { fill: var(--pink); opacity: 0.75; }
+.mouth-open { fill: #c0574a; stroke: var(--ink); stroke-width: 2.2; display: none; }
+.arm { fill: var(--fur); stroke: var(--ink); stroke-width: 2.8; transform-box: fill-box; transform-origin: 50% 50%; }
+
+.acc { display: none; }
+.zzz text { fill: #7b8fc7; font: bold 22px sans-serif; }
+.zzz .small { font-size: 15px; }
+.exclaim { fill: #ff7043; }
+.dots circle { fill: #fff; stroke: var(--ink); stroke-width: 2; }
+.heart path { fill: #ff6f91; }
+.sparkle path { fill: #ffca28; }
+.headphones .band { fill: none; stroke: #4a5a7a; stroke-width: 5; stroke-linecap: round; }
+.headphones .cup { fill: #6c7fa8; stroke: #3c4a66; stroke-width: 2; }
+.cup-water .glass { fill: rgba(220, 240, 255, 0.9); stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; }
+.cup-water .water { fill: #64b5f6; }
+.umbrella .canopy { fill: #81c784; stroke: var(--ink); stroke-width: 2.4; stroke-linejoin: round; }
+.umbrella .stick { fill: none; stroke: var(--ink); stroke-width: 2.6; }
+
+/* 眼睛默认睁开 */
+.eye-closed, .eye-happy { display: none; }
+#eyes { transition: transform 0.25s ease-out; }
+
+/* ───── 状态动画 ───── */
+#body-g { transform-box: view-box; transform-origin: 70px 132px; }
+.s-idle #body-g { animation: breathe 4s steps(20) infinite; }
+.s-idle .eye-open, .s-talk .eye-open, .s-think .eye-open { animation: blink 5.5s infinite; transform-box: view-box; transform-origin: 70px 81px; }
+@keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 0.975); } }
+@keyframes blink { 0%, 95%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+
+.s-sleep #body-g, .s-sleepy #body-g { animation: breathe 5s steps(16) infinite; }
+.s-sleep .eye-open, .s-sleepy .eye-open { display: none; }
+.s-sleep .eye-closed, .s-sleepy .eye-closed { display: inline; }
+.s-sleep .zzz { display: inline; animation: float 3s steps(12) infinite; }
+@keyframes float { 0% { opacity: 0; transform: translate(0, 6px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(6px, -10px); } }
+
+.s-think .dots { display: inline; }
+.s-think .dots circle { animation: pop 1.2s infinite; }
+.s-think .dots circle:nth-child(2) { animation-delay: 0.2s; }
+.s-think .dots circle:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pop { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+.s-talk .mouth { display: none; }
+.s-talk .mouth-open { display: inline; animation: talk 0.36s infinite alternate; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes talk { from { transform: scaleY(0.35); } to { transform: scaleY(1); } }
+
+.s-alert #body-g { animation: hop 0.5s ease-out 3; }
+.s-alert .exclaim { display: inline; animation: shake 0.3s 4; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes hop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-14px) scale(1.02, 0.98); } }
+@keyframes shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+
+.s-happy #body-g { animation: bounce 0.55s ease-in-out 3; }
+.s-happy .eye-open { display: none; }
+.s-happy .eye-happy { display: inline; }
+.s-happy .heart, .s-happy .sparkle { display: inline; animation: float 1.6s ease-out; }
+@keyframes bounce { 0%, 100% { transform: translateY(0) scale(1); } 30% { transform: translateY(-10px) scale(0.98, 1.03); } 60% { transform: translateY(0) scale(1.05, 0.94); } }
+
+.s-drag #body-g { animation: dangle 0.9s ease-in-out infinite; transform-origin: 70px 30px; }
+.s-drag .eye-open { display: none; }
+.s-drag .eye-closed { display: inline; }
+.s-drag .shadow { opacity: 0.3; }
+@keyframes dangle { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+
+.s-eat .mouth, .s-hungry .mouth { display: none; }
+.s-eat .mouth-open, .s-hungry .mouth-open { display: inline; }
+.s-hungry .mouth-open { transform: scale(1.6); transform-box: fill-box; transform-origin: 50% 50%; }
+.s-eat .mouth-open { animation: chomp 0.3s 6; transform-box: fill-box; transform-origin: 50% 50%; }
+.s-eat .sparkle { display: inline; }
+@keyframes chomp { 0%, 100% { transform: scale(1.5); } 50% { transform: scale(0.3, 0.2); } }
+
+.s-drink .cup-water { display: inline; animation: sip 0.8s ease-in-out 3; transform-box: fill-box; transform-origin: 0 100%; }
+.s-drink .eye-open { display: none; }
+.s-drink .eye-happy { display: inline; }
+@keyframes sip { 0%, 100% { transform: rotate(0); } 50% { transform: translate(-14px, -6px) rotate(-28deg); } }
+
+.s-stretch .arm { animation: armsup 0.9s ease-in-out 3; }
+.s-stretch #body-g { animation: stretch 0.9s ease-in-out 3; }
+.s-stretch .eye-open { display: none; }
+.s-stretch .eye-happy { display: inline; }
+@keyframes armsup { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-46px); } }
+@keyframes stretch { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(0.96, 1.06); } }
+
+.focus .headphones { display: inline; }
+.rain.s-idle .umbrella { display: inline; }
+
+/* ───── 气泡 ───── */
+.bubble {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 146px;
+  padding: 10px 12px 10px;
+  background: var(--bubble-bg);
+  color: var(--bubble-fg);
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(91, 70, 54, 0.12);
+  transform-origin: 50% 100%;
+  animation: bubble-in 0.22s ease-out;
+}
+.bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  margin-left: -7px;
+  border: 7px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--bubble-bg);
+}
+.bubble.hidden, .chip.hidden { display: none; }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(6px) scale(0.92); } to { opacity: 1; transform: none; } }
+.bubble-title { font-weight: 700; margin-right: 14px; }
+.bubble-title:empty { display: none; }
+.bubble-text { white-space: pre-wrap; word-break: break-word; max-height: 96px; overflow: hidden; cursor: pointer; }
+.bubble-close {
+  position: absolute; top: 4px; right: 6px; border: 0; background: none; color: var(--bubble-muted);
+  font-size: 16px; line-height: 1; cursor: pointer; padding: 2px 4px;
+}
+.bubble-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.bubble-actions:empty { display: none; }
+.bubble-actions button {
+  flex: 1; min-width: 0; border: 0; border-radius: 8px; padding: 5px 8px; cursor: pointer;
+  background: rgba(91, 70, 54, 0.08); color: var(--bubble-fg); font: inherit; font-size: 12px;
+}
+.bubble-actions button:first-child { background: var(--accent); color: #fff; }
+.bubble-actions button:hover { filter: brightness(0.95); }
+
+/* ───── 悬停信息条 ───── */
+.chip {
+  position: absolute; left: 50%; bottom: 146px; transform: translateX(-50%);
+  white-space: nowrap; padding: 4px 10px; border-radius: 999px; font-size: 12px;
+  background: var(--bubble-bg); color: var(--bubble-fg); box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+}
